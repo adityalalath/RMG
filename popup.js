@@ -6,8 +6,9 @@ const API_KEY = "2220c6d0451d440ef8f1ea8c9406c424";
 
 function buildMovieURL() {
     const selectedGenre = genreSelect.value;
+    const randomPage = Math.floor(Math.random() * 20) + 1;
 
-    let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&vote_count.gte=200`;
+    let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&vote_count.gte=200&page=${randomPage}`;
 
     if (selectedGenre) {
         url += `&with_genres=${selectedGenre}`;
@@ -28,9 +29,22 @@ async function fetchMovies() {
     return data.results || [];
 }
 
+let seenMovieIds = [];
+
 function getRandomMovie(movies) {
-    const index = Math.floor(Math.random() * movies.length);
-    return movies[index];
+    const unseenMovies = movies.filter(movie => !seenMovieIds.includes(movie.id));
+
+    const pool = unseenMovies.length ? unseenMovies : movies;
+    const index = Math.floor(Math.random() * pool.length);
+    const chosenMovie = pool[index];
+
+    seenMovieIds.push(chosenMovie.id);
+
+    if (seenMovieIds.length > 20) {
+        seenMovieIds.shift();
+    }
+
+    return chosenMovie;
 }
 
 function getPosterURL(path) {
