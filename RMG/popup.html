@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Random Movie Generator</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-1: #f3b8c8;
+            --bg-2: #adcdf6;
+            --bg-3: #f4e5d7;
+            --ink: #2e2a26;
+            --muted: #615b56;
+            --card-cream: rgba(247, 244, 239, 0.88);
+            --border-soft: rgba(255, 255, 255, 0.34);
+            --shadow-soft: 0 20px 50px rgba(63, 47, 78, 0.18);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            width: 370px;
+            min-height: 560px;
+        }
+
+        body {
+            padding: 18px;
+            color: var(--ink);
+            font-family: "Inter", Arial, sans-serif;
+            background:
+                radial-gradient(circle at 18% 18%, rgba(134, 120, 255, 0.78), transparent 24%),
+                radial-gradient(circle at 70% 58%, rgba(86, 132, 255, 0.68), transparent 20%),
+                linear-gradient(135deg, var(--bg-1) 0%, #eec3d1 18%, var(--bg-3) 52%, #efd6cb 70%, #f6d7d1 100%);
+            overflow-x: hidden;
+        }
+
+        .panel {
+            border-radius: 28px;
+            padding: 24px 18px 20px;
+            background: var(--card-cream);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--border-soft);
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            text-align: center;
+            font-family: "Cormorant Garamond", serif;
+            font-size: 33px;
+            font-weight: 500;
+            line-height: 0.95;
+        }
+
+        .subtitle {
+            margin: 0 auto 16px;
+            max-width: 26ch;
+            text-align: center;
+            font-size: 12px;
+            line-height: 1.45;
+            color: var(--muted);
+        }
+
+        .controls {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .genre-select,
+        .pick-btn {
+            width: 100%;
+            border: none;
+            border-radius: 14px;
+            font: inherit;
+        }
+
+        .genre-select {
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.52);
+            color: var(--ink);
+            border: 1px solid rgba(54, 46, 41, 0.08);
+            outline: none;
+        }
+
+        .pick-btn {
+            padding: 13px 16px;
+            background: #2f2d2d;
+            color: #f8f3ec;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 160ms ease, opacity 160ms ease, background 160ms ease;
+        }
+
+        .pick-btn:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            background: #232121;
+        }
+
+        .pick-btn:active {
+            transform: translateY(0);
+        }
+
+        .tiny-note {
+            text-align: center;
+            font-size: 10px;
+            color: var(--muted);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .poster {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            border-radius: 18px;
+            display: none;
+            box-shadow: 0 14px 30px rgba(60, 75, 110, 0.14);
+            margin-bottom: 14px;
+        }
+
+        .result {
+            min-height: 260px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #4b4b57;
+            padding: 20px 8px 8px;
+        }
+
+        .empty-state .sparkle {
+            font-size: 34px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state .label {
+            font-size: 11px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #6f6a65;
+        }
+
+        .movie-title {
+            margin: 0 0 8px;
+            font-family: "Cormorant Garamond", serif;
+            font-size: 32px;
+            font-weight: 600;
+            line-height: 0.98;
+        }
+
+        .movie-meta {
+            margin: 0 0 10px;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #5a6470;
+        }
+
+        .movie-overview {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #25313f;
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 13px;
+            color: #4d5560;
+            padding: 26px 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <section class="panel">
+        <h1>What should I watch today?</h1>
+        <p class="subtitle">A soft little movie picker for when your brain is done scrolling.</p>
+
+        <div class="controls">
+            <select id="genreSelect" class="genre-select">
+                <option value="">Any genre</option>
+                <option value="28">Action</option>
+                <option value="35">Comedy</option>
+                <option value="18">Drama</option>
+                <option value="27">Horror</option>
+                <option value="10749">Romance</option>
+                <option value="878">Sci-Fi</option>
+                <option value="53">Thriller</option>
+                <option value="16">Animation</option>
+            </select>
+
+            <button id="pickMovie" class="pick-btn">Pick a movie</button>
+        </div>
+
+        <div class="tiny-note">TMDB powered random recommendation</div>
+
+        <div id="result" class="result">
+            <div class="empty-state">
+                <div class="sparkle">✦</div>
+                <div class="label">Ready to choose</div>
+            </div>
+        </div>
+    </section>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
